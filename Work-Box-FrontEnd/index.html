@@ -7,43 +7,87 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-  <header>
-    <a href="index.html" class="logo">Work<span>Box</span></a>
-    <nav>
-      <a href="index.html" class="active">Buscar Serviços</a>
-      <a href="login.html">Entrar</a>
-      <a href="cadastro.html">Cadastrar</a>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="logo">Work <span>Box</span></div>
+    <nav class="nav-links">
+      <a href="#como-funciona">Como Funciona</a>
+      <a href="#categorias">Categorias</a>
+      <a href="#profissionais">Profissionais</a>
+      <a href="login.html" class="btn-secondary">Entrar</a>
+      <a href="cadastro.html" class="btn-primary">Cadastrar</a>
     </nav>
   </header>
 
-  <main class="container">
-    <section class="hero-section">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <span class="badge-hero">⚡ Soluções Rápidas & Seguras</span>
       <h1>Encontre o profissional certo a qualquer hora</h1>
-      <p>Serviços emergenciais 24h, manutenção, beleza e muito mais na sua região.</p>
-      
-      <!-- Painel de Busca e Filtros -->
+      <p>Serviços emergenciais 24h, manutenção, beleza e assistência técnica na sua região.</p>
+
+      <!-- Painel de Busca -->
       <div class="search-box">
-        <input type="text" id="searchInput" placeholder="O que você precisa? Ex: Chaveiro, Mecânico...">
-        
-        <select id="categoryFilter">
+        <input type="text" placeholder="O que você precisa? Ex: Chaveiro, Eletricista...">
+        <select>
           <option value="">Todas as categorias</option>
           <option value="chaveiro">Chaveiro</option>
           <option value="mecanico">Mecânico</option>
-          <option value="cabeleireiro">Cabeleireiro / Barbeiro</option>
           <option value="eletricista">Eletricista</option>
           <option value="encanador">Encanador</option>
         </select>
-
         <label class="filter-24h">
-          <input type="checkbox" id="filter24h"> Apenas 24 Horas 🌙
+          <input type="checkbox"> Apenas 24 Horas 🌙
         </label>
+        <button class="btn-search">Buscar</button>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Lista de Profissionais em Destaque -->
-    <section class="professionals-grid" id="professionalsGrid">
-      <!-- Exemplo de Card Dinâmico -->
+  <!-- Seção de Métricas / Banner -->
+  <section class="stats-section">
+    <div class="stat-card">
+      <h2>+1.500</h2>
+      <p>Profissionais Ativos</p>
+    </div>
+    <div class="stat-card">
+      <h2>24/7</h2>
+      <p>Atendimento de Urgência</p>
+    </div>
+    <div class="stat-card">
+      <h2>100%</h2>
+      <p>Perfis Verificados</p>
+    </div>
+  </section>
+
+  <!-- Seção Como Funciona -->
+  <section id="como-funciona" class="how-it-works">
+    <h2 class="section-title">Como o WorkBox funciona</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Procure</h3>
+        <p>Busque pelo serviço ou especialidade que você precisa no momento.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>Escolha</h3>
+        <p>Compare perfis, especialidades e atendimentos 24h na sua cidade.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Conecte-se</h3>
+        <p>Chame direto no WhatsApp sem intermediários ou burocracia.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vitrine de Profissionais -->
+  <section id="profissionais" class="container">
+    <h2 class="section-title">Profissionais em Destaque</h2>
+    
+    <div class="professionals-grid">
+      <!-- Card 1 -->
       <div class="card-professional">
         <div class="card-header">
           <span class="badge-category">Chaveiro</span>
@@ -55,9 +99,10 @@
           <span>📞 (81) 99876-5432</span>
           <span>📍 Recife / PE</span>
         </div>
-        <button class="btn-contact" onclick="openWhatsApp('5581998765432')">Chamar no WhatsApp</button>
+        <a href="https://wa.me/5581998765432" target="_blank" class="btn-contact">Chamar no WhatsApp</a>
       </div>
 
+      <!-- Card 2 -->
       <div class="card-professional">
         <div class="card-header">
           <span class="badge-category">Mecânico</span>
@@ -68,11 +113,43 @@
           <span>📞 (81) 98811-2233</span>
           <span>📍 Olinda / PE</span>
         </div>
-        <button class="btn-contact" onclick="openWhatsApp('5581988112233')">Chamar no WhatsApp</button>
+        <a href="https://wa.me/5581988112233" target="_blank" class="btn-contact">Chamar no WhatsApp</a>
       </div>
-    </section>
-  </main>
 
-  <script src="js/main.js"></script>
+      <!-- Card 3 -->
+      <div class="card-professional">
+        <div class="card-header">
+          <span class="badge-category">Eletricista</span>
+          <span class="badge-24h">Atendimento 24h</span>
+        </div>
+        <h3>EletroVolt Reparos</h3>
+        <p class="bio">Instalações elétricas, curtos-circuitos, quadros de força e emergências residenciais.</p>
+        <div class="card-info">
+          <span>📞 (81) 99777-4455</span>
+          <span>📍 Recife / PE</span>
+        </div>
+        <a href="https://wa.me/5581997774455" target="_blank" class="btn-contact">Chamar no WhatsApp</a>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="card-professional">
+        <div class="card-header">
+          <span class="badge-category">Encanador</span>
+        </div>
+        <h3>SOS Encanamentos</h3>
+        <p class="bio">Detecção de vazamentos, desentupimentos e manutenção de caixa d'água.</p>
+        <div class="card-info">
+          <span>📞 (81) 99123-8899</span>
+          <span>📍 Jaboatão / PE</span>
+        </div>
+        <a href="https://wa.me/5581991238899" target="_blank" class="btn-contact">Chamar no WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2026 WorkBox. Todos os direitos reservados. Conectando clientes e profissionais com segurança.</p>
+  </footer>
 </body>
 </html>

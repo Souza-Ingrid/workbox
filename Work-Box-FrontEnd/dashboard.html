@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkBox - Painel do Usuário</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">Work <span>Box</span></div>
+    <div class="user-menu">
+      <span id="userName">Carregando...</span>
+      <button onclick="logout()" class="btn-logout">Sair</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Header do Painel -->
+    <div class="dashboard-header">
+      <div>
+        <h1 id="welcomeTitle">Olá!</h1>
+        <p>Acompanhe suas solicitações, mensagens e status da conta.</p>
+      </div>
+      <a href="index.html" class="btn-primary">+ Buscar Novo Serviço</a>
+    </div>
+
+    <!-- Cards de Resumo / Métricas -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-icon">📋</span>
+        <div>
+          <h3>3</h3>
+          <p>Solicitações Ativas</p>
+        </div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-icon">✅</span>
+        <div>
+          <h3>12</h3>
+          <p>Serviços Concluídos</p>
+        </div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-icon">⭐</span>
+        <div>
+          <h3>4.9</h3>
+          <p>Avaliação Média</p>
+        </div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-icon">🔒</span>
+        <div>
+          <h3>Ativa</h3>
+          <p>Sessão JWT Segura</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela de Solicitações Recentes -->
+    <section class="dash-section">
+      <h2>Solicitações Recentes</h2>
+      <div class="table-container">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>Profissional / Serviço</th>
+              <th>Categoria</th>
+              <th>Data</th>
+              <th>Status</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Roberto Chaves</strong></td>
+              <td>Chaveiro 24h</td>
+              <td>15/09/2026</td>
+              <td><span class="status-badge status-done">Concluído</span></td>
+              <td><button class="btn-sm">Detalhes</button></td>
+            </tr>
+            <tr>
+              <td><strong>EletroVolt Reparos</strong></td>
+              <td>Eletricista</td>
+              <td>14/09/2026</td>
+              <td><span class="status-badge status-pending">Em Andamento</span></td>
+              <td><button class="btn-sm">Detalhes</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('workbox_token');
+      const user = JSON.parse(localStorage.getItem('workbox_user') || '{}');
+
+      if (!token) {
+        alert('Acesso negado. Por favor, faça login.');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      document.getElementById('userName').innerText = user.nome || 'Usuário';
+      document.getElementById('welcomeTitle').innerText = `Olá, ${user.nome || 'Usuário'}! 👋`;
+    });
+
+    function logout() {
+      localStorage.removeItem('workbox_token');
+      localStorage.removeItem('workbox_user');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>
