@@ -1,13 +1,9 @@
-import express from 'express';
 import rateLimit from 'express-rate-limit';
-import { registerUser, loginUser } from '../controllers/authController.js';
 
-const router = express.Router();
-
-// Limitador de Login (3 tentativas por IP = Bloqueio de 30 min)
-const loginLimiter = rateLimit({
+// Limitador Rígido para Login (Proteção contra Força Bruta)
+export const loginLimiter = rateLimit({
   windowMs: 30 * 60 * 1000, // 30 minutos
-  max: 3, // Máximo de 3 tentativas
+  max: 3, // Máximo de 3 tentativas por IP
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
@@ -18,9 +14,3 @@ const loginLimiter = rateLimit({
     });
   }
 });
-
-// Rotas
-router.post('/register', registerUser);
-router.post('/login', loginLimiter, loginUser);
-
-export default router;
