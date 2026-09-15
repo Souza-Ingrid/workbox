@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkBox - Cadastro</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="logo">Work<span>Box</span></a>
+    <nav>
+      <a href="index.html">Buscar Serviços</a>
+      <a href="login.html">Entrar</a>
+      <a href="cadastro.html" class="active">Cadastrar</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="form-card">
+      <h2>Criar sua conta no WorkBox</h2>
+
+      <div class="role-selector">
+        <button type="button" class="role-btn active" id="btn-cliente" onclick="setRole('CLIENTE')">Quero Contratar</button>
+        <button type="button" class="role-btn" id="btn-profissional" onclick="setRole('PROFISSIONAL')">Quero Oferecer Serviços</button>
+      </div>
+
+      <form id="cadastroForm" novalidate>
+        <input type="hidden" id="tipoUsuario" name="tipoUsuario" value="CLIENTE">
+
+        <div class="form-group">
+          <label for="nome">Nome Completo *</label>
+          <input type="text" id="nome" name="nome" maxlength="100" required placeholder="Digite seu nome completo">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">E-mail *</label>
+            <input type="email" id="email" name="email" maxlength="120" required placeholder="seu@email.com">
+          </div>
+          <div class="form-group">
+            <label for="telefone">Telefone / WhatsApp *</label>
+            <input type="tel" id="telefone" name="telefone" maxlength="15" required placeholder="(81) 99999-9999">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cpfCnpj">CPF *</label>
+            <input type="text" id="cpfCnpj" name="cpfCnpj" maxlength="14" required placeholder="000.000.000-00">
+          </div>
+          <div class="form-group">
+            <label for="cep">CEP *</label>
+            <input type="text" id="cep" name="cep" maxlength="9" required placeholder="50000-000">
+          </div>
+        </div>
+
+        <!-- Campos dinâmicos do Profissional -->
+        <div id="camposProfissional" style="display: none;">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="categoria">Categoria do Serviço *</label>
+              <select id="categoria" name="categoria">
+                <option value="">Selecione uma categoria...</option>
+                <option value="chaveiro">Chaveiro</option>
+                <option value="mecanico">Mecânico</option>
+                <option value="cabeleireiro">Cabeleireiro / Barbeiro</option>
+                <option value="eletricista">Eletricista</option>
+                <option value="encanador">Encanador</option>
+                <option value="outros">Outros</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="atendimento24h">Atendimento 24 Horas? *</label>
+              <select id="atendimento24h" name="atendimento24h">
+                <option value="nao">Não</option>
+                <option value="sim">Sim (Atendimento Noturno/Emergência)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="descricao">Descrição dos Serviços e Horário de Atuação *</label>
+            <textarea id="descricao" name="descricao" rows="3" maxlength="500" placeholder="Ex: Chaveiro residencial e automotivo. Atendimento 24h na região metropolitana."></textarea>
+          </div>
+        </div>
+
+        <!-- Senha e Validação -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="senha">Senha *</label>
+            <input type="password" id="senha" name="senha" maxlength="64" required placeholder="••••••••">
+          </div>
+          <div class="form-group">
+            <label for="confirmaSenha">Confirmar Senha *</label>
+            <input type="password" id="confirmaSenha" name="confirmaSenha" maxlength="64" required placeholder="••••••••">
+          </div>
+        </div>
+
+        <div class="password-requirements">
+          <p>Requisitos da Senha:</p>
+          <ul>
+            <li id="req-length">✖ Mínimo de 8 caracteres</li>
+            <li id="req-upper">✖ Pelo menos 1 letra maiúscula</li>
+            <li id="req-lower">✖ Pelo menos 1 letra minúscula</li>
+            <li id="req-number">✖ Pelo menos 1 número</li>
+            <li id="req-symbol">✖ Pelo menos 1 caractere especial (!@#$%^&*)</li>
+            <li id="req-match">✖ As senhas precisam coincidir</li>
+          </ul>
+        </div>
+
+        <!-- Aceite de Termos LGPD -->
+        <div class="terms-group">
+          <input type="checkbox" id="aceitaTermos" required>
+          <label for="aceitaTermos">
+            Li e concordo com os <a onclick="openModal()">Termos de Uso e Política de Privacidade (LGPD)</a>.
+          </label>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btnCadastrar" disabled>Cadastrar no WorkBox</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Modal LGPD -->
+  <div class="modal-overlay" id="modalTermos">
+    <div class="modal-content">
+      <h3>Termos de Uso & Política de Privacidade (LGPD)</h3>
+      <p>O <strong>WorkBox</strong> preza pela transparência e proteção dos seus dados pessoais nos termos da Lei Geral de Proteção de Dados (Lei nº 13.709/2018).</p>
+      <p>1. <strong>Coleta de Dados:</strong> Coletamos nome, e-mail, telefone e localização para conectar clientes aos prestadores de serviço adequados.</p>
+      <p>2. <strong>Profissionais:</strong> Dados de contato fornecidos por profissionais cadastrados ficarão visíveis para buscas públicas no sistema.</p>
+      <p>3. <strong>Segurança:</strong> Suas credenciais e dados pessoais são protegidos utilizando práticas de criptografia no armazenamento.</p>
+      <button type="button" class="modal-close" onclick="closeModal()">Fechar</button>
+    </div>
+  </div>
+
+  <script src="js/masks.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

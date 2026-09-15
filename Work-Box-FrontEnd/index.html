@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkBox - Encontre Profissionais 24h</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="logo">Work<span>Box</span></a>
+    <nav>
+      <a href="index.html" class="active">Buscar Serviços</a>
+      <a href="login.html">Entrar</a>
+      <a href="cadastro.html">Cadastrar</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero-section">
+      <h1>Encontre o profissional certo a qualquer hora</h1>
+      <p>Serviços emergenciais 24h, manutenção, beleza e muito mais na sua região.</p>
+      
+      <!-- Painel de Busca e Filtros -->
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="O que você precisa? Ex: Chaveiro, Mecânico...">
+        
+        <select id="categoryFilter">
+          <option value="">Todas as categorias</option>
+          <option value="chaveiro">Chaveiro</option>
+          <option value="mecanico">Mecânico</option>
+          <option value="cabeleireiro">Cabeleireiro / Barbeiro</option>
+          <option value="eletricista">Eletricista</option>
+          <option value="encanador">Encanador</option>
+        </select>
+
+        <label class="filter-24h">
+          <input type="checkbox" id="filter24h"> Apenas 24 Horas 🌙
+        </label>
+      </div>
+    </section>
+
+    <!-- Lista de Profissionais em Destaque -->
+    <section class="professionals-grid" id="professionalsGrid">
+      <!-- Exemplo de Card Dinâmico -->
+      <div class="card-professional">
+        <div class="card-header">
+          <span class="badge-category">Chaveiro</span>
+          <span class="badge-24h">Atendimento 24h</span>
+        </div>
+        <h3>Roberto Chaves</h3>
+        <p class="bio">Aberturas automotivas e residenciais de urgência. Atendimento rápido na zona metropolitana.</p>
+        <div class="card-info">
+          <span>📞 (81) 99876-5432</span>
+          <span>📍 Recife / PE</span>
+        </div>
+        <button class="btn-contact" onclick="openWhatsApp('5581998765432')">Chamar no WhatsApp</button>
+      </div>
+
+      <div class="card-professional">
+        <div class="card-header">
+          <span class="badge-category">Mecânico</span>
+        </div>
+        <h3>Oficina AutoExpress</h3>
+        <p class="bio">Socorro mecânico, troca de bateria, alinhamento e pequenos reparos no local.</p>
+        <div class="card-info">
+          <span>📞 (81) 98811-2233</span>
+          <span>📍 Olinda / PE</span>
+        </div>
+        <button class="btn-contact" onclick="openWhatsApp('5581988112233')">Chamar no WhatsApp</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
