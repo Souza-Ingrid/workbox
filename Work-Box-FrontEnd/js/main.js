@@ -1,6 +1,3 @@
-/* --- WorkBox - JS Principal Atualizado --- */
-
-// 1. Controle de Perfil no Cadastro (CLIENTE x PROFISSIONAL)
 function setRole(role) {
   const tipoUsuarioInput = document.getElementById('tipoUsuario');
   if (tipoUsuarioInput) tipoUsuarioInput.value = role;
@@ -21,7 +18,6 @@ function setRole(role) {
   validateForm();
 }
 
-// 2. Controle do Modal de Termos e Modal de Segurança
 function openModal() {
   const modal = document.getElementById('modalTermos');
   if (modal) modal.style.display = 'flex';
@@ -35,7 +31,6 @@ function closeModal() {
   if (securityModal) securityModal.classList.remove('active');
 }
 
-// 3. Validação de Senha em Tempo Real
 let passwordValidState = false;
 
 function validatePassword() {
@@ -69,12 +64,13 @@ function validatePassword() {
 function updateReqUI(elementId, isValid) {
   const el = document.getElementById(elementId);
   if (el) {
+    const cleanText = el.innerText.replace(/^[✔✖]\s*/, '');
     if (isValid) {
       el.classList.add('valid');
-      el.innerText = `✔ ${el.innerText.substring(2)}`;
+      el.innerText = `✔ ${cleanText}`;
     } else {
       el.classList.remove('valid');
-      el.innerText = `✖ ${el.innerText.substring(2)}`;
+      el.innerText = `✖ ${cleanText}`;
     }
   }
 }
@@ -99,7 +95,6 @@ function validateForm() {
   return isFormValid;
 }
 
-// 4. Event Listeners Globais ao Carregar a Página
 document.addEventListener('DOMContentLoaded', () => {
   const senhaInput = document.getElementById('senha');
   const confirmaSenhaInput = document.getElementById('confirmaSenha');
@@ -116,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
     aceitaTermos.addEventListener('change', validateForm);
   }
 
-  // --- Fluxo de Cadastro de Usuário ---
   if (cadastroForm) {
     cadastroForm.addEventListener('input', validateForm);
     cadastroForm.addEventListener('submit', async (e) => {
@@ -127,18 +121,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const formData = {
         nome: document.getElementById('nome').value,
         email: document.getElementById('email').value,
-        telefone: document.getElementById('telefone').value,
-        cpfCnpj: document.getElementById('cpfCnpj').value,
-        cep: document.getElementById('cep').value,
+        telefone: document.getElementById('telefone')?.value || '',
+        cpfCnpj: document.getElementById('cpfCnpj')?.value || '',
+        cep: document.getElementById('cep')?.value || '',
         senha: document.getElementById('senha').value,
-        tipoUsuario: document.getElementById('tipoUsuario').value,
+        tipoUsuario: document.getElementById('tipoUsuario')?.value || 'CLIENTE',
         categoria: document.getElementById('categoria')?.value || null,
         atendimento24h: document.getElementById('atendimento24h')?.value || null,
         descricao: document.getElementById('descricao')?.value || null
       };
 
       try {
-        const response = await fetch('/api/auth/register', {
+        const response = await fetch('/api/auth/cadastro', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
@@ -150,15 +144,15 @@ document.addEventListener('DOMContentLoaded', () => {
           alert('Cadastro realizado com sucesso! Redirecionando para o login...');
           window.location.href = 'login.html';
         } else {
-          alert(`Erro no cadastro: ${result.message}`);
+          alert(`Erro no cadastro: ${result.message || 'Falha ao registrar dados.'}`);
         }
       } catch (error) {
+        console.error('Erro no envio do cadastro:', error);
         alert('Não foi possível conectar ao servidor.');
       }
     });
   }
 
-  // --- Fluxo de Login e Apresentação CID ---
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -175,7 +169,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const result = await response.json();
 
-        // A. Atualiza o Painel Inspetor de Confidencialidade HTTP
         const jsonCodeElement = document.getElementById('jsonResponse')?.querySelector('code') || document.getElementById('jsonResponse');
         if (jsonCodeElement) {
           jsonCodeElement.innerText = JSON.stringify({
@@ -185,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
           }, null, 2);
         }
 
-        // B. Trava de Disponibilidade (Status 429 - Rate Limit 3 Tentativas)
         if (response.status === 429) {
           const securityModal = document.getElementById('securityModal');
           const modalMessage = document.getElementById('modalMessage');
@@ -195,15 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
-        // C. Erro de Autenticação Tradicional (Status 401)
         if (!response.ok) {
-          alert(result.message);
+          alert(result.message || 'Falha na autenticação.');
           return;
         }
 
-        // D. Sucesso de Autenticação
-        localStorage.setItem('workbox_token', result.token);
-        localStorage.setItem('workbox_user', JSON.stringify(result.user));
+        if (result.token) localStorage.setItem('workbox_token', result.token);
+        if (result.user) localStorage.setItem('workbox_user', JSON.stringify(result.user));
 
         window.location.href = 'dashboard.html';
 

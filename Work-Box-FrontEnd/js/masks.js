@@ -1,6 +1,3 @@
-/* js/masks.js */
-
-// Aplicar máscaras automaticamente no formulário
 document.addEventListener('DOMContentLoaded', () => {
   const telInput = document.getElementById('telefone');
   const cpfCnpjInput = document.getElementById('cpfCnpj');

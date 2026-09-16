@@ -4,7 +4,6 @@ import { usersDB } from '../config/database.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'workbox_chave_secreta_super_segura_2026';
 
-// Regex de validação
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /^.{8,}$/;
 
@@ -12,7 +11,6 @@ export const registerUser = async (req, res) => {
   try {
     const { nome, email, telefone, cpfCnpj, cep, senha, tipoUsuario, categoria, atendimento24h, descricao } = req.body;
 
-    // Integridade: Validação dos campos obrigatórios
     if (!nome || !email || !telefone || !cpfCnpj || !cep || !senha || !tipoUsuario) {
       return res.status(400).json({ message: 'Dados incompletos ou inválidos.' });
     }
@@ -26,7 +24,6 @@ export const registerUser = async (req, res) => {
       return res.status(409).json({ message: 'Não foi possível concluir o cadastro com este e-mail.' });
     }
 
-    // Criptografia da senha
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(senha, salt);
 
@@ -47,7 +44,6 @@ export const registerUser = async (req, res) => {
 
     usersDB.push(newUser);
 
-    // Confidencialidade: Não retornar a senha nem dados sensíveis no JSON
     return res.status(201).json({
       message: 'Usuário cadastrado com sucesso!',
       user: { id: newUser.id, nome: newUser.nome, email: newUser.email, tipoUsuario: newUser.tipoUsuario }
@@ -68,7 +64,6 @@ export const loginUser = async (req, res) => {
 
     const user = usersDB.find(u => u.email === email.toLowerCase().trim());
     
-    // Alerta CID / Confidencialidade: Não indica se o erro foi no e-mail ou na senha
     if (!user) {
       console.warn(`[SEGURANÇA CID] Tentativa de login com e-mail não encontrado: ${email}`);
       return res.status(401).json({ message: 'Credenciais inválidas.' });

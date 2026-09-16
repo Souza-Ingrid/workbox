@@ -1,9 +1,8 @@
 import rateLimit from 'express-rate-limit';
 
-// Limitador Rígido para Login (Proteção contra Força Bruta)
 export const loginLimiter = rateLimit({
   windowMs: 30 * 60 * 1000, // 30 minutos
-  max: 3, // Máximo de 3 tentativas por IP
+  max: 3, 
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
