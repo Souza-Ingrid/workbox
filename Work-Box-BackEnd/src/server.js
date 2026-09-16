@@ -41,6 +41,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(frontEndPath, 'index.html'));
 });
 
+// Mensagem ajustada com o link azul clicável para o terminal local
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor WorkBox rodando na porta ${PORT}`);
+  console.log(`🚀 Servidor WorkBox rodando em http://localhost:${PORT}`);
 });
