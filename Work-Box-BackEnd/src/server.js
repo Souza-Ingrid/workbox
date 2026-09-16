@@ -11,6 +11,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', 1);
+
 app.use(cors({
   origin: [
     'https://workbox-wvyh.onrender.com',
@@ -41,7 +43,6 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(frontEndPath, 'index.html'));
 });
 
-// Mensagem ajustada com o link azul clicável para o terminal local
 app.listen(PORT, () => {
   console.log(`🚀 Servidor WorkBox rodando em http://localhost:${PORT}`);
 });
