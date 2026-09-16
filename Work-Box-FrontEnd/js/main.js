@@ -20,6 +20,25 @@ function setRole(role) {
 
 function openModal() {
   const modal = document.getElementById('modalTermos');
+  const modalBody = modal?.querySelector('.modal-body') || document.getElementById('modalTermosBody');
+
+  if (modalBody) {
+    modalBody.innerHTML = `
+      <h3>Termos de Uso e Política de Privacidade (LGPD)</h3>
+      <p>Em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), informamos como seus dados são tratados na plataforma WorkBox:</p>
+      
+      <ul>
+        <li><strong>Coleta de Dados:</strong> Coletamos apenas as informações estritamente necessárias para a prestação de serviços (Nome, E-mail, Telefone, CPF/CNPJ e CEP).</li>
+        <li><strong>Finalidade do Tratamento:</strong> Seus dados são utilizados exclusivamente para autenticação de conta, segurança da plataforma e intermediação entre clientes e profissionais.</li>
+        <li><strong>Segurança e Armazenamento:</strong> Implementamos medidas de segurança técnicas (como controle de taxa de requisições e criptografia) para proteger seus dados contra acessos não autorizados.</li>
+        <li><strong>Seus Direitos (Art. 18 LGPD):</strong> Você tem o direito de solicitar a confirmação da existência de tratamento, o acesso aos dados, a correção de dados incompletos e a eliminação de dados pessoais a qualquer momento.</li>
+        <li><strong>Compartilhamento:</strong> Seus dados pessoais não serão vendidos ou compartilhados com terceiros sem o seu consentimento prévio, exceto por obrigação legal.</li>
+      </ul>
+      
+      <p><small>Ao marcar a caixa de seleção e se cadastrar, você concorda expressamente com o tratamento dos seus dados nos termos acima.</small></p>
+    `;
+  }
+
   if (modal) modal.style.display = 'flex';
 }
 
