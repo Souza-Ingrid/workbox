@@ -1,26 +1,48 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import { registerUser, loginUser } from '../controllers/authController.js';
 
 const router = express.Router();
 
-// Limitador de Login (3 tentativas por IP = Bloqueio de 30 min)
+// Limitador de Login configurado para 4 tentativas
 const loginLimiter = rateLimit({
   windowMs: 30 * 60 * 1000, // 30 minutos
-  max: 3, // Máximo de 3 tentativas
+  max: 4, // Permite 4 tentativas antes do bloqueio
+  message: {
+    success: false,
+    message: 'Bloqueio de Segurança: Limite de 4 tentativas excedido para este IP. Tente novamente em 30 minutos.'
+  },
   standardHeaders: true,
   legacyHeaders: false,
-  handler: (req, res) => {
-    console.warn(`[DISPONIBILIDADE / SEGURANÇA CID] IP ${req.ip} bloqueado após 3 tentativas de login.`);
-
-    return res.status(429).json({
-      message: 'Você atingiu o limite de 3 tentativas seguidas. Por motivos de segurança, seu acesso foi bloqueado por 30 minutos.'
-    });
+  // Função executada quando o limite de 4 tentativas é estourado
+  handler: (req, res, next, options) => {
+    console.log(`\n🚨 [ALERTA DE SEGURANÇA] IP Bloqueado por Rate Limit: ${req.ip}`);
+    console.log(`🕒 Horário do Bloqueio: ${new Date().toLocaleString('pt-BR')}`);
+    console.log(`⚠️ Tentativa número 5 abortada (Limite: 4)\n`);
+    res.status(429).json(options.message);
   }
 });
 
-// Rotas
-router.post('/register', registerUser);
-router.post('/login', loginLimiter, loginUser);
+// Rota de Login com logs detalhados no terminal
+router.post('/login', loginLimiter, (req, res) => {
+  const { email, senha } = req.body;
+
+  // Log no terminal a cada tentativa individual
+  console.log(`\n📌 [TENTATIVA DE LOGIN] Recebida de IP: ${req.ip}`);
+  console.log(`📧 E-mail informado: ${email || 'Não informado'}`);
+
+  // Substitua pela lógica de autenticação do seu projeto:
+  const usuarioValido = false; // Exemplo de falha de credenciais para teste
+
+  if (!usuarioValido) {
+    console.log(`❌ [RESULTADO] Credenciais inválidas para: ${email}`);
+    return res.status(401).json({
+      success: false,
+      message: 'Credenciais inválidas. Verifique seu e-mail e senha.'
+    });
+  }
+
+  console.log(`✅ [RESULTADO] Login efetuado com sucesso para: ${email}`);
+  return res.json({ success: true, message: 'Login realizado com sucesso!' });
+});
 
 export default router;
