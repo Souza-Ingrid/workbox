@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors({
   origin: [
+    'https://workbox-wvyh.onrender.com',
     'https://workbox-fawn.vercel.app',
     'http://localhost:3000',
     'http://127.0.0.1:3000'
@@ -31,14 +32,15 @@ const globalLimiter = rateLimit({
 app.use(globalLimiter);
 app.use(express.json({ limit: '10kb' }));
 
-app.use(express.static(path.join(__dirname, '../../Work-Box-FrontEnd')));
+const frontEndPath = path.join(__dirname, '../../Work-Box-FrontEnd');
+app.use(express.static(frontEndPath));
 
 app.use('/api/auth', authRoutes);
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../Work-Box-FrontEnd/index.html'));
+  res.sendFile(path.join(frontEndPath, 'index.html'));
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor WorkBox rodando em http://localhost:${PORT}`);
+  console.log(`🚀 Servidor WorkBox rodando na porta ${PORT}`);
 });

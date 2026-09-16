@@ -4,7 +4,7 @@ import rateLimit from 'express-rate-limit';
 const router = express.Router();
 
 const loginLimiter = rateLimit({
-  windowMs: 30 * 60 * 1000, // 30 minutos
+  windowMs: 30 * 60 * 1000, 
   max: 4, 
   message: {
     success: false,
@@ -18,6 +18,18 @@ const loginLimiter = rateLimit({
     console.log(`⚠️ Tentativa número 5 abortada (Limite: 4)\n`);
     res.status(429).json(options.message);
   }
+});
+
+router.post('/cadastro', (req, res) => {
+  const { nome, email, senha, tipoUsuario } = req.body;
+
+  console.log(`\n📌 [NOVO CADASTRO] Recebido de IP: ${req.ip}`);
+  console.log(`👤 Nome: ${nome || 'Não informado'} | E-mail: ${email || 'Não informado'} (${tipoUsuario || 'CLIENTE'})`);
+
+  return res.status(201).json({
+    success: true,
+    message: 'Cadastro realizado com sucesso!'
+  });
 });
 
 router.post('/login', loginLimiter, (req, res) => {
