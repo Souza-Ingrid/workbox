@@ -176,8 +176,11 @@ document.addEventListener('DOMContentLoaded', () => {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const email = document.getElementById('loginEmail').value;
-      const senha = document.getElementById('loginSenha').value;
+      const emailInput = document.getElementById('loginEmail') || document.getElementById('email');
+      const senhaInput = document.getElementById('loginSenha') || document.getElementById('senha');
+
+      const email = emailInput ? emailInput.value : '';
+      const senha = senhaInput ? senhaInput.value : '';
 
       try {
         const response = await fetch('/api/auth/login', {
@@ -187,15 +190,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const result = await response.json();
-
-        const jsonCodeElement = document.getElementById('jsonResponse')?.querySelector('code') || document.getElementById('jsonResponse');
-        if (jsonCodeElement) {
-          jsonCodeElement.innerText = JSON.stringify({
-            statusHTTP: `${response.status} ${response.statusText || ''}`.trim(),
-            headers: { 'content-type': response.headers.get('content-type') },
-            respostaServidor: result
-          }, null, 2);
-        }
 
         if (response.status === 429) {
           const securityModal = document.getElementById('securityModal');
@@ -207,13 +201,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!response.ok) {
-          alert(result.message || 'Falha na autenticação.');
+          alert(result.message || 'Credenciais inválidas. Verifique seu e-mail e senha.');
           return;
         }
 
         if (result.token) localStorage.setItem('workbox_token', result.token);
         if (result.user) localStorage.setItem('workbox_user', JSON.stringify(result.user));
 
+        alert('Login realizado com sucesso!');
         window.location.href = 'dashboard.html';
 
       } catch (error) {

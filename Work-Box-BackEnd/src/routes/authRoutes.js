@@ -2,36 +2,37 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
-
-// Array em memória para guardar os usuários cadastrados
 const usuariosCadastrados = [];
 
-// 1. Limitador de Taxa para Login (4 tentativas)
 const loginLimiter = rateLimit({
-  windowMs: 30 * 60 * 1000, // 30 minutos
-  max: 4, 
-  message: {
-    success: false,
-    message: 'Bloqueio de Segurança: Limite de 4 tentativas excedido para este IP. Tente novamente em 30 minutos.'
-  },
+  windowMs: 30 * 60 * 1000, 
+  max: 4,
   standardHeaders: true,
   legacyHeaders: false,
-  handler: (req, res, next, options) => {
-    console.log(`\n🚨 [ALERTA DE SEGURANÇA] IP Bloqueado por Rate Limit: ${req.ip}`);
+  keyGenerator: (req) => {
+    return req.headers['x-forwarded-for']?.split(',')[0].trim() || req.ip || req.socket.remoteAddress;
+  },
+  handler: (req, res) => {
+    const ipCliente = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.ip;
+    
+    console.log(`\n🚨 [ALERTA DE SEGURANÇA] IP Bloqueado por Rate Limit: ${ipCliente}`);
     console.log(`🕒 Horário do Bloqueio: ${new Date().toLocaleString('pt-BR')}`);
-    console.log(`⚠️ Tentativa número 5 abortada (Limite: 4)\n`);
-    res.status(429).json(options.message);
+    console.log(`⚠️ Tentativa número 5 abortada (Limite de 4 tentativas excedido)\n`);
+    
+    return res.status(429).json({
+      success: false,
+      message: 'Bloqueio de Segurança: Limite de 4 tentativas excedido para este IP. Tente novamente em 30 minutos.'
+    });
   }
 });
 
-// 2. Rota de Cadastro
 router.post('/cadastro', (req, res) => {
   const { nome, email, senha, tipoUsuario } = req.body;
 
-  console.log(`\n📌 [NOVO CADASTRO] Recebido de IP: ${req.ip}`);
+  const ipCliente = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.ip;
+  console.log(`\n📌 [NOVO CADASTRO] Recebido de IP: ${ipCliente}`);
   console.log(`👤 Nome: ${nome} | E-mail: ${email}`);
 
-  // Salva o usuário no array de memória
   usuariosCadastrados.push({ nome, email, senha, tipoUsuario });
 
   return res.status(201).json({
@@ -40,14 +41,13 @@ router.post('/cadastro', (req, res) => {
   });
 });
 
-// 3. Rota de Login
 router.post('/login', loginLimiter, (req, res) => {
   const { email, senha } = req.body;
 
-  console.log(`\n📌 [TENTATIVA DE LOGIN] Recebida de IP: ${req.ip}`);
+  const ipCliente = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.ip;
+  console.log(`\n📌 [TENTATIVA DE LOGIN] Recebida de IP: ${ipCliente}`);
   console.log(`📧 E-mail informado: ${email || 'Não informado'}`);
 
-  // Busca se o usuário existe com a mesma senha
   const usuarioEncontrado = usuariosCadastrados.find(
     (user) => user.email === email && user.senha === senha
   );

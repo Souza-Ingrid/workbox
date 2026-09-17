@@ -1,7 +1,7 @@
 import rateLimit from 'express-rate-limit';
 
 export const loginLimiter = rateLimit({
-  windowMs: 30 * 60 * 1000, // 30 minutos
+  windowMs: 30 * 60 * 1000, 
   max: 3, 
   standardHeaders: true,
   legacyHeaders: false,
