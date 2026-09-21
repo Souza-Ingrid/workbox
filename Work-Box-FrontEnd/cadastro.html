@@ -30,8 +30,16 @@
         <input type="hidden" id="tipoUsuario" name="tipoUsuario" value="CLIENTE">
 
         <div class="form-group">
-          <label for="nome">Nome Completo *</label>
-          <input type="text" id="nome" name="nome" maxlength="100" required placeholder="Digite seu nome completo">
+          <label for="nome">Nome Completo * (mínimo de 30 caracteres)</label>
+          <input 
+            type="text" 
+            id="nome" 
+            name="nome" 
+            minlength="30" 
+            maxlength="100" 
+            required 
+            placeholder="Digite seu nome completo (no mínimo 30 caracteres)"
+          >
         </div>
 
         <div class="form-row">

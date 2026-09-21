@@ -114,6 +114,28 @@ function validateForm() {
   return isFormValid;
 }
 
+function iniciarTimerBloqueio(duracaoMinutos) {
+  let tempoRestante = duracaoMinutos * 60;
+  const timerDisplay = document.getElementById('timerDisplay');
+
+  if (!timerDisplay) return;
+
+  const intervalo = setInterval(() => {
+    const minutos = Math.floor(tempoRestante / 60);
+    const segundos = tempoRestante % 60;
+
+    const minFormatado = String(minutos).padStart(2, '0');
+    const segFormatado = String(segundos).padStart(2, '0');
+
+    timerDisplay.innerText = `${minFormatado}:${segFormatado}`;
+
+    if (--tempoRestante < 0) {
+      clearInterval(intervalo);
+      timerDisplay.innerText = "00:00";
+    }
+  }, 1000);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const senhaInput = document.getElementById('senha');
   const confirmaSenhaInput = document.getElementById('confirmaSenha');
@@ -197,6 +219,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
           if (modalMessage) modalMessage.innerText = result.message;
           if (securityModal) securityModal.classList.add('active');
+
+          iniciarTimerBloqueio(30);
           return;
         }
 
