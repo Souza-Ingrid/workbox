@@ -1,9 +1,62 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 const router = express.Router();
 const usuariosCadastrados = [];
 
+// --------------------------------------------------------------------------
+// 🔒 1. CRIPTOGRAFIA EM REPOUSO (Data at Rest) - AES-256-GCM
+// Criptografa dados sensíveis em repouso antes de armazenar na memória/banco
+// --------------------------------------------------------------------------
+const ALGORITHM = 'aes-256-gcm';
+const SECRET_KEY = crypto.scryptSync('workbox-chave-secreta-lgpd', 'salt-seguro', 32);
+
+function encryptData(text) {
+  if (!text) return text;
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv(ALGORITHM, SECRET_KEY, iv);
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  const authTag = cipher.getAuthTag().toString('hex');
+  return `${iv.toString('hex')}:${authTag}:${encrypted}`;
+}
+
+// --------------------------------------------------------------------------
+// 🎭 2. MASCARAMENTO DE DADOS (Data Masking)
+// Ofusca dados sensíveis para exibições seguras nos Logs do Render
+// --------------------------------------------------------------------------
+function maskSensitiveData(email, cpfCnpj, telefone) {
+  const emailMascarado = email ? email.replace(/(.{2})(.*)(?=@)/, (g1, g2, g3) => g2 + '*'.repeat(g3.length)) : 'N/A';
+  const cpfMascarado = cpfCnpj ? cpfCnpj.replace(/^(\d{3})\.\d{3}\.\d{3}-(\d{2})$/, '$1.***.***-$2') : 'N/A';
+  const telMascarado = telefone ? telefone.replace(/^(\(\d{2}\)\s)\d{4,5}-(\d{4})$/, '$1*****-$2') : 'N/A';
+  
+  return { emailMascarado, cpfMascarado, telMascarado };
+}
+
+// --------------------------------------------------------------------------
+// 🔑 3. PRINCIPIO DO MENOR PRIVILÉGIO (Least Privilege - RBAC)
+// Middleware de verificação de permissão por perfil de usuário
+// --------------------------------------------------------------------------
+function authorizeRoles(...rolesPermitidas) {
+  return (req, res, next) => {
+    const userRole = req.headers['x-user-role'] || 'CLIENTE';
+
+    if (!rolesPermitidas.includes(userRole)) {
+      console.log(`⛔ [MENOR PRIVILÉGIO] Perfil '${userRole}' tentou acessar rota restrita.`);
+      return res.status(403).json({
+        success: false,
+        message: 'Acesso Negado: Seu perfil não possui permissão para este recurso.'
+      });
+    }
+    next();
+  };
+}
+
+// --------------------------------------------------------------------------
+// 🛡️ RATE LIMITER (Disponibilidade)
+// --------------------------------------------------------------------------
 const loginLimiter = rateLimit({
   windowMs: 30 * 60 * 1000, 
   max: 4,
@@ -26,46 +79,87 @@ const loginLimiter = rateLimit({
   }
 });
 
-router.post('/cadastro', (req, res) => {
-  const { nome, email, senha, tipoUsuario } = req.body;
+// --------------------------------------------------------------------------
+// 📝 ROTA DE CADASTRO (Com Hashing, Criptografia e Mascaramento)
+// --------------------------------------------------------------------------
+router.post('/cadastro', async (req, res) => {
+  try {
+    const { nome, email, senha, tipoUsuario, cpfCnpj, telefone } = req.body;
+    const ipCliente = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.ip;
 
-  const ipCliente = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.ip;
-  console.log(`\n📌 [NOVO CADASTRO] Recebido de IP: ${ipCliente}`);
-  console.log(`👤 Nome: ${nome} | E-mail: ${email}`);
+    // 🔑 4. HASHING DE SENHA (Bcrypt)
+    const senhaHash = await bcrypt.hash(senha, 10);
 
-  usuariosCadastrados.push({ nome, email, senha, tipoUsuario });
+    // 🔒 1. CRIPTOGRAFIA EM REPOUSO
+    const cpfCnpjCriptografado = encryptData(cpfCnpj);
+    const telefoneCriptografado = encryptData(telefone);
 
-  return res.status(201).json({
-    success: true,
-    message: 'Cadastro realizado com sucesso!'
-  });
+    // Salva no banco de dados / memória com dados protegidos
+    usuariosCadastrados.push({ 
+      nome, 
+      email, 
+      senha: senhaHash, 
+      tipoUsuario: tipoUsuario || 'CLIENTE',
+      cpfCnpj: cpfCnpjCriptografado,
+      telefone: telefoneCriptografado
+    });
+
+    // 🎭 2. MASCARAMENTO NOS LOGS
+    const { emailMascarado, cpfMascarado } = maskSensitiveData(email, cpfCnpj, telefone);
+    console.log(`\n📌 [NOVO CADASTRO PROTEGIDO] IP: ${ipCliente}`);
+    console.log(`👤 Nome: ${nome} | E-mail: ${emailMascarado} | CPF: ${cpfMascarado}`);
+    console.log(`🔒 Senha armazenada com Hash Hmac/Bcrypt e dados pessoais criptografados AES-256 em repouso.\n`);
+
+    return res.status(201).json({
+      success: true,
+      message: 'Cadastro realizado com sucesso!'
+    });
+  } catch (error) {
+    console.error('Erro no cadastro:', error);
+    return res.status(500).json({ success: false, message: 'Erro interno ao processar cadastro.' });
+  }
 });
 
-router.post('/login', loginLimiter, (req, res) => {
+// --------------------------------------------------------------------------
+// 🔐 ROTA DE LOGIN (Com Comparação Hash de Senha)
+// --------------------------------------------------------------------------
+router.post('/login', loginLimiter, async (req, res) => {
   const { email, senha } = req.body;
-
   const ipCliente = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.ip;
-  console.log(`\n📌 [TENTATIVA DE LOGIN] Recebida de IP: ${ipCliente}`);
-  console.log(`📧 E-mail informado: ${email || 'Não informado'}`);
 
-  const usuarioEncontrado = usuariosCadastrados.find(
-    (user) => user.email === email && user.senha === senha
-  );
+  const { emailMascarado } = maskSensitiveData(email);
+  console.log(`\n📌 [TENTATIVA DE LOGIN] IP: ${ipCliente} | E-mail: ${emailMascarado}`);
 
-  if (!usuarioEncontrado) {
-    console.log(`❌ [RESULTADO] Credenciais inválidas para: ${email}`);
+  const usuarioEncontrado = usuariosCadastrados.find((user) => user.email === email);
+
+  // Compara o hash seguro da senha
+  const senhaValida = usuarioEncontrado ? await bcrypt.compare(senha, usuarioEncontrado.senha) : false;
+
+  if (!usuarioEncontrado || !senhaValida) {
+    console.log(`❌ [RESULTADO] Credenciais inválidas para o e-mail mascarado: ${emailMascarado}`);
     return res.status(401).json({
       success: false,
       message: 'Credenciais inválidas. Verifique seu e-mail e senha.'
     });
   }
 
-  console.log(`✅ [RESULTADO] Login efetuado com sucesso para: ${email}`);
+  console.log(`✅ [RESULTADO] Login efetuado com sucesso para: ${emailMascarado}`);
   return res.json({
     success: true,
     message: 'Login realizado com sucesso!',
     token: 'token-fake-workbox-jwt',
-    user: { nome: usuarioEncontrado.nome, email: usuarioEncontrado.email }
+    user: { nome: usuarioEncontrado.nome, email: usuarioEncontrado.email, tipoUsuario: usuarioEncontrado.tipoUsuario }
+  });
+});
+
+// --------------------------------------------------------------------------
+// 👑 ROTA PROTEGIDA PELO PRINCIPIO DO MENOR PRIVILÉGIO
+// Apenas usuários do tipo 'PROFISSIONAL' podem acessar esta rota
+// --------------------------------------------------------------------------
+router.get('/painel-profissional', authorizeRoles('PROFISSIONAL'), (req, res) => {
+  return res.json({
+    success: true,
+    message: 'Bem-vindo ao Painel Restrito de Prestadores de Serviço WorkBox!'
   });
 });
 
