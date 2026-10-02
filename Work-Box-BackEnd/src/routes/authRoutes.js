@@ -70,7 +70,7 @@ const loginLimiter = rateLimit({
     
     console.log(`\n🚨 [ALERTA DE SEGURANÇA] IP Bloqueado por Rate Limit: ${ipCliente}`);
     console.log(`🕒 Horário do Bloqueio: ${new Date().toLocaleString('pt-BR')}`);
-    console.log(`⚠️ Tentativa número 5 abortada (Limite de 4 tentativas excedido)\n`);
+    console.log(`⚠️️ Tentativa número 5 abortada (Limite de 4 tentativas excedido)\n`);
     
     return res.status(429).json({
       success: false,
@@ -80,15 +80,25 @@ const loginLimiter = rateLimit({
 });
 
 // --------------------------------------------------------------------------
-// 📝 ROTA DE CADASTRO (Com Hashing, Criptografia e Mascaramento)
+// 📝 ROTA DE CADASTRO (Com Hashing Avançado, Criptografia e Mascaramento)
 // --------------------------------------------------------------------------
 router.post('/cadastro', async (req, res) => {
   try {
     const { nome, email, senha, tipoUsuario, cpfCnpj, telefone } = req.body;
     const ipCliente = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.ip;
 
-    // 🔑 4. HASHING DE SENHA (Bcrypt)
-    const senhaHash = await bcrypt.hash(senha, 10);
+    // 🛑 VALIDAÇÃO DO LIMITE MÁXIMO DE 30 CARACTERES NO NOME
+    if (nome && nome.length > 30) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validação incorreta: O campo Nome deve ter no máximo 30 caracteres.'
+      });
+    }
+
+    // 🔑 4. HASHING DE SENHA ELABORADO (Bcrypt + Salt)
+    const saltRounds = 10;
+    const generatedSalt = await bcrypt.genSalt(saltRounds);
+    const senhaHash = await bcrypt.hash(senha, generatedSalt);
 
     // 🔒 1. CRIPTOGRAFIA EM REPOUSO
     const cpfCnpjCriptografado = encryptData(cpfCnpj);
@@ -106,9 +116,20 @@ router.post('/cadastro', async (req, res) => {
 
     // 🎭 2. MASCARAMENTO NOS LOGS
     const { emailMascarado, cpfMascarado } = maskSensitiveData(email, cpfCnpj, telefone);
-    console.log(`\n📌 [NOVO CADASTRO PROTEGIDO] IP: ${ipCliente}`);
-    console.log(`👤 Nome: ${nome} | E-mail: ${emailMascarado} | CPF: ${cpfMascarado}`);
-    console.log(`🔒 Senha armazenada com Hash Hmac/Bcrypt e dados pessoais criptografados AES-256 em repouso.\n`);
+    
+    console.log(`\n======================================================`);
+    console.log(`📌 [NOVO CADASTRO PROTEGIDO] IP: ${ipCliente}`);
+    console.log(`👤 Nome (${nome.length} chars): ${nome} | E-mail: ${emailMascarado} | CPF: ${cpfMascarado}`);
+    console.log(`------------------------------------------------------`);
+    console.log(`🔑 [DEMONSTRAÇÃO DE HASHING DE SENHA]`);
+    console.log(` ├─ Senha em Texto Puro Recebida : "${senha}"`);
+    console.log(` ├─ Algoritmo Aplicado           : Bcrypt / Blowfish`);
+    console.log(` ├─ Custo de Processamento (Cost): ${saltRounds} rounds`);
+    console.log(` ├─ Salt Aleatório Gerado        : ${generatedSalt}`);
+    console.log(` └─ Hash Final Resultante (Banco): ${senhaHash}`);
+    console.log(`------------------------------------------------------`);
+    console.log(`🔒 Dados sensíveis (CPF/Tel) cifrados com AES-256-GCM em repouso.`);
+    console.log(`======================================================\n`);
 
     return res.status(201).json({
       success: true,
