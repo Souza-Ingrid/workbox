@@ -99,13 +99,18 @@ function isPasswordValid() {
 }
 
 function validateForm() {
-  const form = document.getElementById('cadastroForm');
+  const nome = document.getElementById('nome')?.value || '';
+  const email = document.getElementById('email')?.value || '';
+  const telefone = document.getElementById('telefone')?.value || '';
+  const cpfCnpj = document.getElementById('cpfCnpj')?.value || '';
+  const cep = document.getElementById('cep')?.value || '';
   const aceitaTermos = document.getElementById('aceitaTermos');
   const btnSubmit = document.getElementById('btnCadastrar');
 
-  if (!form) return false;
+  const camposBasicosPreenchidos = nome.trim() !== '' && email.trim() !== '' && telefone.trim() !== '' && cpfCnpj.trim() !== '' && cep.trim() !== '';
+  const termosAceito = aceitaTermos ? aceitaTermos.checked : true;
 
-  const isFormValid = form.checkValidity() && passwordValidState && (aceitaTermos ? aceitaTermos.checked : true);
+  const isFormValid = camposBasicosPreenchidos && passwordValidState && termosAceito;
 
   if (btnSubmit) {
     btnSubmit.disabled = !isFormValid;
@@ -153,11 +158,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (cadastroForm) {
-    cadastroForm.addEventListener('input', validateForm);
+    cadastroForm.addEventListener('keyup', validateForm);
+    cadastroForm.addEventListener('change', validateForm);
+
     cadastroForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      if (!validateForm()) return;
 
       const formData = {
         nome: document.getElementById('nome').value,
